@@ -98,6 +98,7 @@ void hash_table_insert(HashTable *ht, char *key, char *value)
   LinkedPair *new_pair = create_pair(key, value);
   unsigned int index = hash(key, ht->capacity);
 
+  
   LinkedPair *stored_pair = ht->storage[index];
   if (stored_pair != NULL)
   {
