@@ -2,27 +2,18 @@
 #include <stdlib.h>
 #include <string.h>
 
-/****
-  Basic hash table key/value pair
- ****/
 typedef struct Pair
 {
   char *key;
   char *value;
 } Pair;
 
-/****
-  Basic hash table
- ****/
 typedef struct BasicHashTable
 {
   int capacity;
   Pair **storage;
 } BasicHashTable;
 
-/****
-  Create a key/value pair to be stored in the hash table.
- ****/
 Pair *create_pair(char *key, char *value)
 {
   Pair *pair = malloc(sizeof(Pair));
@@ -32,9 +23,6 @@ Pair *create_pair(char *key, char *value)
   return pair;
 }
 
-/****
-  Use this function to safely destroy a hashtable pair.
- ****/
 void destroy_pair(Pair *pair)
 {
   if (pair != NULL)
@@ -45,11 +33,6 @@ void destroy_pair(Pair *pair)
   }
 }
 
-/****
-  djb2 hash function
-
-  Do not modify this!
- ****/
 unsigned int hash(char *str, int max)
 {
   unsigned long hash = 5381;
@@ -72,7 +55,6 @@ unsigned int hash(char *str, int max)
  ****/
 BasicHashTable *create_hash_table(int capacity)
 {
-  // Allocate memory
   BasicHashTable *ht = malloc(sizeof(BasicHashTable));
   ht->storage = calloc(capacity, sizeof(Pair *));
   ht->capacity = capacity;
@@ -89,24 +71,19 @@ BasicHashTable *create_hash_table(int capacity)
  ****/
 void hash_table_insert(BasicHashTable *ht, char *key, char *value)
 {
-  // Create a new pair with key and value arguments
-  Pair *new_pair = create_pair(key, value);
-  // Make the index by using the hashing function on the key
   unsigned int index = hash(key, ht->capacity);
+  Pair *pair = create_pair(key, value);
 
   Pair *stored_pair = ht->storage[index];
   if (stored_pair != NULL)
   {
-    // If the key values don't match, print a warning
     if (strcmp(key, stored_pair->key) != 0)
     {
-      fprintf(stderr, "%s\n", "Warning: key value will be overwritten.");
+      printf("WARNING: Overwriting key/value: %s/%s\n", stored_pair->key, stored_pair->value);
     }
-    // Destroy the old pair
     destroy_pair(stored_pair);
   }
-  //store the new pair
-  ht->storage[index] = new_pair;
+  ht->storage[index] = pair;
 }
 
 /****
@@ -116,13 +93,12 @@ void hash_table_insert(BasicHashTable *ht, char *key, char *value)
  ****/
 void hash_table_remove(BasicHashTable *ht, char *key)
 {
-  // find the storage index of the key
   unsigned int index = hash(key, ht->capacity);
 
   if (ht->storage[index] == NULL ||
       strcmp(ht->storage[index]->key, key) != 0)
   {
-    fprintf(stderr, "%s\n", "Could not remove key.");
+    fprintf(stderr, "Unable to remove entry with key: %s", key);
   }
   else
   {
@@ -138,19 +114,16 @@ void hash_table_remove(BasicHashTable *ht, char *key)
  ****/
 char *hash_table_retrieve(BasicHashTable *ht, char *key)
 {
-  //find the storage index of the key
   unsigned int index = hash(key, ht->capacity);
-  // return the value of the index
+
   if (ht->storage[index] == NULL ||
       strcmp(ht->storage[index]->key, key) != 0)
   {
-    fprintf(stderr, "Could not retrieve entry with key: %s\n", key);
+    fprintf(stderr, "Unable to retrieve entry with key: %s\n", key);
     return NULL;
   }
-  else
-  {
-    return ht->storage[index]->value;
-  }
+
+  return ht->storage[index]->value;
 }
 
 /****
@@ -167,11 +140,11 @@ void destroy_hash_table(BasicHashTable *ht)
       destroy_pair(ht->storage[i]);
     }
   }
+
   free(ht->storage);
   free(ht);
 }
 
-#ifndef TESTING
 int main(void)
 {
   struct BasicHashTable *ht = create_hash_table(16);
@@ -195,4 +168,3 @@ int main(void)
 
   return 0;
 }
-#endif
